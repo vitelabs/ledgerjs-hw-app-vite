@@ -9,3 +9,5 @@ lerna-debug.log
 lerna-error.log
 yarn-error.log
 *.swp
+lib
+lib-es

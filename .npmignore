@@ -1,0 +1,11 @@
+node_modules/
+script/
+tests/
+src/
+.eslintrc.json
+.flowconfig
+.gitignore
+babal.config.js
+yarn.lock
+*.flow
+*.map

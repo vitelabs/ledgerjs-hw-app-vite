@@ -1,45 +1,48 @@
 {
-  "name": "@ledgerhq/hw-app-btc",
-  "version": "5.4.1",
-  "description": "Ledger Hardware Wallet Bitcoin Application API",
-  "keywords": [
-    "Ledger",
-    "LedgerWallet",
-    "btc",
-    "Bitcoin",
-    "NanoS",
-    "Blue",
-    "Hardware Wallet"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/LedgerHQ/ledgerjs"
-  },
-  "bugs": {
-    "url": "https://github.com/LedgerHQ/ledgerjs/issues"
-  },
-  "homepage": "https://github.com/LedgerHQ/ledgerjs",
-  "publishConfig": {
-    "access": "public"
-  },
-  "main": "lib/Btc.js",
-  "module": "lib-es/Btc.js",
-  "license": "Apache-2.0",
-  "dependencies": {
-    "@ledgerhq/hw-transport": "^5.3.0",
-    "bip32-path": "^0.4.2",
-    "ripemd160": "2",
-    "sha.js": "2"
-  },
-  "devDependencies": {
-    "flow-bin": "^0.115.0"
-  },
-  "scripts": {
-    "flow": "flow",
-    "clean": "bash ../../script/clean.sh",
-    "build": "bash ../../script/build.sh",
-    "watch": "bash ../../script/watch.sh",
-    "doc": "bash ../../script/doc.sh"
-  },
-  "gitHead": "fca2c7ce74fdb88df4d59dca4cc0e668410d66af"
+    "private": true,
+    "name": "@ledgerhq/hw-app-btc",
+    "version": "5.4.1",
+    "description": "Ledger Hardware Wallet Bitcoin Application API",
+    "scripts": {
+        "flow": "flow",
+        "clean": "bash ./script/clean.sh",
+        "build": "npm run clean && BABEL_ENV=production bash ./script/build.sh",
+        "watch": "bash ./script/watch.sh",
+        "doc": "bash ./script/doc.sh",
+        "test": "yarn run build && jest",
+        "lint": "eslint src"
+    },
+    "main": "lib/Btc.js",
+    "module": "lib-es/Btc.js",
+    "license": "Apache-2.0",
+    "dependencies": {
+        "@ledgerhq/hw-transport": "^5.3.0",
+        "bip32-path": "^0.4.2",
+        "ripemd160": "2",
+        "sha.js": "2"
+    },
+    "devDependencies": {
+        "@babel/cli": "^7.7.7",
+        "@babel/core": "^7.7.7",
+        "@babel/plugin-proposal-class-properties": "^7.7.0",
+        "@babel/plugin-proposal-export-default-from": "^7.5.2",
+        "@babel/plugin-proposal-export-namespace-from": "^7.5.2",
+        "@babel/plugin-syntax-dynamic-import": "^7.2.0",
+        "@babel/plugin-syntax-import-meta": "^7.2.0",
+        "@babel/preset-env": "^7.7.7",
+        "@babel/preset-flow": "^7.0.0",
+        "@ledgerhq/hw-transport-mocker": "^5.3.0",
+        "@vite/vitejs": "^2.3.3",
+        "babel-eslint": "^10.0.3",
+        "babel-jest": "^24.9.0",
+        "eslint": "^6.8.0",
+        "eslint-config-prettier": "^6.9.0",
+        "eslint-plugin-flowtype": "^4.5.3",
+        "eslint-plugin-react": "^7.14.3",
+        "flow-bin": "^0.115.0",
+        "flow-copy-source": "^2.0.8",
+        "flow-mono-cli": "^1.5.0",
+        "flow-typed": "^2.6.1",
+        "jest": "^24.9.0"
+    }
 }
