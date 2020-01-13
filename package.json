@@ -9,8 +9,8 @@
         "build": "npm run clean && BABEL_ENV=production bash ./script/build.sh",
         "watch": "bash ./script/watch.sh",
         "doc": "bash ./script/doc.sh",
-        "test": "yarn run build && jest",
-        "to": "jest",
+        "test": "yarn run build && jest --runTestsByPath ./tests/Vite.test.js",
+        "to": "jest --runTestsByPath ./tests/Vite.test.js",
         "lint": "eslint src"
     },
     "main": "lib/Btc.js",
