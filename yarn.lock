@@ -1942,6 +1942,11 @@
   dependencies:
     "@types/yargs-parser" "*"
 
+"@vite/vitejs-http@^2.3.3":
+  version "2.3.3"
+  resolved "https://registry.yarnpkg.com/@vite/vitejs-http/-/vitejs-http-2.3.3.tgz#4da5460a107c735b0e37b07679c9962b86e4d1bd"
+  integrity sha512-9bJz03UdQLV+q1lQbwUDK7N+5EA//geXnMsenWoRsBY0wAA0OA+yao4CgP+H5MFEuxLXXoNRHYerTvL35hsejg==
+
 "@vite/vitejs@^2.3.3":
   version "2.3.3"
   resolved "https://registry.npmjs.org/@vite/vitejs/-/vitejs-2.3.3.tgz#48203f9cf07ce34f77ae04cac99d2302a2fa6ccf"

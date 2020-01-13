@@ -15,6 +15,120 @@ export default class Vite extends BaseAPI {
         })
     }
 
+    async signSendAccountBlock(
+        accountIndex: int,
+        prevHash?: Hex,
+        height: Uint64,
+        toAddress: Address,
+        amount: BigInt,
+        tokenId: TokenId,
+        fee?: BigInt,
+        data?: Base64,
+        nonce?: Base64
+    ) {
+
+        const dataBuffer = data ? Buffer.from(data, 'base64') : Buffer.alloc(0); 
+        let dataBufferPtr = 0;
+
+        async function send(): Promise<{|
+            hash: Hex,
+            signature: Base64
+        |}> {
+            const maxDataSizeInCacheSendBlockDataAPDU = 224;
+            const maxDataSizeInSignSendBlock = 64;
+            let remain = dataBuffer.length - dataBufferPtr;
+
+            if (remain > maxDataSizeInSignSendBlock) {
+
+                const cla = 0xa1;
+                const ins = 0x04;
+                const p1 = (dataBufferPtr == 0) ? 0x01 : 0x02;
+                const p2 = 0x00;
+
+                let length = Math.min(remain, maxDataSizeInCacheSendBlockDataAPDU);
+                let buf = dataBuffer.slice(dataBufferPtr, dataBufferPtr + length);
+                dataBufferPtr += length;
+                console.log(length, buf.length);
+                await this.transport.send(cla, ins, p1, p2, buf);
+                
+                return await send.call(this);
+            } else {
+
+                const path = `44'/666666'/${accountIndex}'`;
+                const bipPath = BIPPath.fromString(path).toPathArray();
+
+                const cla = 0xa1;
+                const ins = 0x05;
+                const p1 = (dataBufferPtr == 0) ? 0x02 : 0x01;
+                const p2 = 0x00;
+
+                let size = 1 + 4 * bipPath.length; // bipPath
+                size += 32; // prevHash
+                size += 8; // height
+                size += 21; // toAddress
+                size += 32; // amount
+                size += 10; // tokenId
+                size += 32; // fee
+                size += 8; // nonce
+                size += remain; // data
+
+                let ptr = 0;
+                let buf = Buffer.alloc(size);
+
+                buf.writeUInt8(bipPath.length, ptr);
+                ptr += 1;
+                bipPath.forEach((segment, _) => {
+                    buf.writeUInt32BE(segment, ptr);
+                    ptr += 4;
+                });
+
+                if (prevHash) {
+                    ptr += buf.write(prevHash, ptr, buf.length - ptr, "hex");
+                } else {
+                    ptr += buf.write("0000000000000000000000000000000000000000000000000000000000000000", ptr, buf.length - ptr, "hex");
+                }
+
+                ptr += buf.write(accountBlock.utils.getHeightHex(height), ptr, buf.length - ptr, "hex");
+                ptr += buf.write(accountBlock.utils.getAddressHex(toAddress), ptr, buf.length - ptr, "hex");
+                ptr += buf.write(accountBlock.utils.getAmountHex(amount), ptr, buf.length - ptr, "hex");
+                ptr += buf.write(accountBlock.utils.getTokenIdHex(tokenId), ptr, buf.length - ptr, "hex");
+
+                if (fee) {
+                    ptr += buf.write(accountBlock.utils.getAmountHex(fee), ptr, buf.length - ptr, "hex");
+                } else {
+                    ptr += buf.write(accountBlock.utils.getAmountHex(BigInt(0)), ptr, buf.length - ptr, "hex");
+                }
+
+                if (nonce) {
+                    ptr += buf.write(nonce, ptr, buf.length - ptr, "Base64");
+                } else {
+                    ptr += buf.write("0000000000000000", ptr, buf.length - ptr, "hex");
+                }
+
+                if (remain > 0) {
+                    dataBuffer.copy(buf, ptr, dataBufferPtr, dataBufferPtr + remain);
+                    dataBufferPtr += remain;
+                    ptr += remain;
+                }
+
+                buf = await this.transport.send(cla, ins, p1, p2, buf);
+                ptr = 0;
+
+                ptr += 32;
+                const blockHash = buf.slice(ptr - 32, ptr).toString("hex");
+
+                ptr += 64;
+                const signature = buf.slice(ptr - 64, ptr).toString("Base64");
+
+                return {
+                    blockHash,
+                    signature
+                };
+            }
+        }
+        return await send.call(this)
+    }
+
     async signReceiveAccountBlock(
         accountIndex: int,
         prevHash?: Hex,
