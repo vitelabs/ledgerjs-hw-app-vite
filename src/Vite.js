@@ -232,4 +232,27 @@ export default class Vite extends BaseAPI {
             address
         };
       }
+
+
+      async getAppConfig(): Promise<{|
+        version: String,
+        builtinTokenCount: Uint16
+    |}> {
+
+        const cla = 0xa1;
+        const ins = 0x01;
+        const p1 = 0x00;
+        const p2 = 0x00;
+
+        let buf = Buffer.alloc(0);
+        buf = await this.transport.send(cla, ins, p1, p2, buf);
+
+        let version = `${buf[0]}.${buf[1]}.${buf[2]}`;
+        let builtinTokenCount = buf[3]*256 + buf[4];
+
+        return {
+            version,
+            builtinTokenCount
+        };
+      }
 }
