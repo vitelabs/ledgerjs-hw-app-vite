@@ -234,7 +234,7 @@ export default class Vite extends BaseAPI {
       }
 
 
-      async getAppConfig(): Promise<{|
+    async getAppConfig(): Promise<{|
         version: String,
         builtinTokenCount: Uint16
     |}> {
@@ -254,5 +254,45 @@ export default class Vite extends BaseAPI {
             version,
             builtinTokenCount
         };
-      }
+    }
+
+    async getBuiltinTokenInfo(index) {
+        const cla = 0xa1;
+        const ins = 0x06;
+        const p1 = 0x00;
+        const p2 = 0x00;
+        
+        let buf = Buffer.from([index/256, index%256]);
+        buf = await this.transport.send(cla, ins, p1, p2, buf);
+
+        const tokenId = buf.slice(0, 28).toString("ascii");
+        const decimals = buf[28];
+        const symbolAndIndex = buf.slice(29, buf.length - 2).toString("ascii");
+
+        return {
+            tokenId,
+            decimals,
+            symbolAndIndex
+        };
+    }
+
+    async getTestAmountText(amount, tokenId) {
+
+        const cla = 0xa1;
+        const ins = 0x07;
+        const p1 = 0x00;
+        const p2 = 0x00;
+
+        let size = 32; // amount
+        size += 10; // tokenId
+
+        let ptr = 0;
+        let buf = Buffer.alloc(size);
+
+        ptr += buf.write(accountBlock.utils.getAmountHex(amount), ptr, buf.length - ptr, "hex");
+        ptr += buf.write(accountBlock.utils.getTokenIdHex(tokenId), ptr, buf.length - ptr, "hex");
+        buf = await this.transport.send(cla, ins, p1, p2, buf);
+        const text = buf.slice(0, buf.length - 2).toString("ascii");
+        return text;
+    }
 }

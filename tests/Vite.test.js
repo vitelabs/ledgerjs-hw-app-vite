@@ -221,10 +221,75 @@ async function sendBlock(accountAddress, publicKey, toAddress, amount, tokenId, 
 
 let accountIndex = 0;
 
-test("vite.getAppConfig", async () => {
-  const result = await vite.getAppConfig();
-  console.log('version', result.version);
-  console.log('builtinTokenCount', result.builtinTokenCount);
+// test("vite.generateOnlineAllBuiltinTokenInfo", async () => {
+
+//   const onlineProvider = new ViteAPI(new HTTP_RPC('https://api.vitewallet.com/ios'), () => {
+//    console.log('Connetct');
+//   });
+
+//   let tokenInfos = [];
+//   let offset = 0;
+//   const count = 100;
+//   let hasMore = true;
+
+//   while (hasMore) {
+//     const result = await onlineProvider.request('mintage_getTokenInfoList', offset, count);
+//     tokenInfos = tokenInfos.concat(result.tokenInfoList);
+//     hasMore = (result.tokenInfoList.length == count);
+//     offset++;
+//   }
+//   console.log("count" ,tokenInfos.length)
+//   let text = "";
+//   for (let index = 0; index < tokenInfos.length; index++) {
+//     const token = tokenInfos[index];
+
+//     let buffer = Buffer.from(accountBlock.utils.getTokenIdHex(token.tokenId), "hex");
+//     let raw = `{`;
+    
+//     raw += `0x${buffer.slice(0,1).toString("hex")},`;
+//     raw += `0x${buffer.slice(1,2).toString("hex")},`;
+//     raw += `0x${buffer.slice(2,3).toString("hex")},`;
+//     raw += `0x${buffer.slice(3,4).toString("hex")},`;
+//     raw += `0x${buffer.slice(4,5).toString("hex")},`;
+//     raw += `0x${buffer.slice(5,6).toString("hex")},`;
+//     raw += `0x${buffer.slice(6,7).toString("hex")},`;
+//     raw += `0x${buffer.slice(7,8).toString("hex")},`;
+//     raw += `0x${buffer.slice(8,9).toString("hex")},`;
+//     raw += `0x${buffer.slice(9,10).toString("hex")}}`;
+
+//     text += "{";
+//     text += raw;
+//     text += ", ";
+//     text += '"';
+//     text += token.tokenSymbol
+//     if (token.tokenSymbol != 'VITE' && token.tokenSymbol != 'VCP' && token.tokenSymbol != 'VX') {
+//       text += "-";
+//       text += `${token.index}`.padStart(3, '0');
+//     }
+//     text += '"';
+//     text += ", ";
+//     text += `${token.decimals}`;
+//     text += "},\n";
+//   }
+//   console.log(text);
+// }, 50000000);
+
+// test("vite.getAppConfig", async () => {
+//   const result = await vite.getAppConfig();
+//   console.log('version', result.version);
+//   console.log('builtinTokenCount', result.builtinTokenCount);
+
+//   let text = "";
+//   for (let index = 0; index < result.builtinTokenCount; index++) {
+//     const result = await vite.getBuiltinTokenInfo(index);
+//     text += `${result.tokenId}, ${result.symbolAndIndex}, ${result.decimals}\n`;
+//   }
+//   console.log(`tokenInfo\n${text}`);
+// }, 50000000);
+
+test("vite.getTestAmountText", async () => {
+  const result = await vite.getTestAmountText("1", "tti_7d37e43b93438b2d6431f5b6");
+  console.log(result);
 }, 50000000);
 
 // test("vite.getAddress", async () => {
@@ -254,12 +319,12 @@ test("vite.getAppConfig", async () => {
 //     const fee = "0";
 
 //     const notes = [
-//       null,
-//       "",
-//       "abcdefghijklmnopqrstuvwxyz",
-//       "abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789",
-//       "abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789-haha",
-//       "交易所ViteX在4月16日正式上线公测版本。ViteX作为完全去中心化交易所具有链上撮合交易;、链上分红、交易信息链上完全透明、 私钥资产由用户自己保管、交易即挖矿、任何人都可以在ViteX交易所自主上币等特点。ViteX交易所公测地址： https://x-test.vite.net/为了方便您数字资产的保管，在体验交易所公测版本时，需要您重新注册账号，领取测试代币后即可体验交易（钱包的测试代币需要在交易所“资产管理”内充币至交易所）。在公测版本中我们将会开启以下14个交易对：GRIN.T/BTC、ETH/BTC、VITE/BTC、VTT.T/BTC、VTT.T/ETH、VITE/ETH、GRIN.T/ETH、GRIN.T/VITE、VTT.T/VITE、BTC/USDT、ETH/USDT、VITE/USDT、GRIN.T/USDT、VTT.T/USDT。最小交易额分别为：100VITE、0.01ETH，0.0005BTC，1USDT。公测版ViteX交易所仅有Web版本，下面为公测版本截图。",
+//       // null,
+//       // "",
+//       // "abcdefghijklmnopqrstuvwxyz",
+//       // "abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789",
+//       // "abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789-haha",
+//       // "交易所ViteX在4月16日正式上线公测版本。ViteX作为完全去中心化交易所具有链上撮合交易;、链上分红、交易信息链上完全透明、 私钥资产由用户自己保管、交易即挖矿、任何人都可以在ViteX交易所自主上币等特点。ViteX交易所公测地址： https://x-test.vite.net/为了方便您数字资产的保管，在体验交易所公测版本时，需要您重新注册账号，领取测试代币后即可体验交易（钱包的测试代币需要在交易所“资产管理”内充币至交易所）。在公测版本中我们将会开启以下14个交易对：GRIN.T/BTC、ETH/BTC、VITE/BTC、VTT.T/BTC、VTT.T/ETH、VITE/ETH、GRIN.T/ETH、GRIN.T/VITE、VTT.T/VITE、BTC/USDT、ETH/USDT、VITE/USDT、GRIN.T/USDT、VTT.T/USDT。最小交易额分别为：100VITE、0.01ETH，0.0005BTC，1USDT。公测版ViteX交易所仅有Web版本，下面为公测版本截图。",
 //       "全球第一个基于DAG的去中心化交易所ViteX在4月16日正式上线公测版本。ViteX作为完全去中心化交易所具有链上撮合交易;、链上分红、交易信息链上完全透明、 私钥资产由用户自己保管、交易即挖矿、任何人都可以在ViteX交易所自主上币等特点。ViteX交易所公测地址： https://x-test.vite.net/为了方便您数字资产的保管，在体验交易所公测版本时，需要您重新注册账号，领取测试代币后即可体验交易（钱包的测试代币需要在交易所“资产管理”内充币至交易所）。在公测版本中我们将会开启以下14个交易对：GRIN.T/BTC、ETH/BTC、VITE/BTC、VTT.T/BTC、VTT.T/ETH、VITE/ETH、GRIN.T/ETH、GRIN.T/VITE、VTT.T/VITE、BTC/USDT、ETH/USDT、VITE/USDT、GRIN.T/USDT、VTT.T/USDT。最小交易额分别为：100VITE、0.01ETH，0.0005BTC，1USDT。公测版ViteX交易所仅有Web版本，下面为公测版本截图。"
 //     ];
 
