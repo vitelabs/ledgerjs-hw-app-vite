@@ -17,6 +17,7 @@ const {
 } = require('@vite/vitejs');
 
 const blake = require('blakejs/blake2b');
+const BigNumber = require('bignumber.js');
 
 let transport;
 let provider;
@@ -219,26 +220,31 @@ async function sendBlock(accountAddress, publicKey, toAddress, amount, tokenId, 
   return await signSendBlockAndSend(accountAddress, publicKey, toAddress, amount, tokenId, fee, data);
 }
 
-let accountIndex = 0;
+async function getOnlineAllBuiltinTokenInfo() {
+  const onlineProvider = new ViteAPI(new HTTP_RPC('https://api.vitewallet.com/ios'), () => {
+   console.log('Online Connetct');
+  });
+
+  let tokenInfos = [];
+  let offset = 0;
+  const count = 100;
+  let hasMore = true;
+
+  while (hasMore) {
+    const result = await onlineProvider.request('mintage_getTokenInfoList', offset, count);
+    tokenInfos = tokenInfos.concat(result.tokenInfoList);
+    hasMore = (result.tokenInfoList.length == count);
+    offset++;
+  }
+  
+  return tokenInfos;
+}
 
 // test("vite.generateOnlineAllBuiltinTokenInfo", async () => {
 
-//   const onlineProvider = new ViteAPI(new HTTP_RPC('https://api.vitewallet.com/ios'), () => {
-//    console.log('Connetct');
-//   });
-
-//   let tokenInfos = [];
-//   let offset = 0;
-//   const count = 100;
-//   let hasMore = true;
-
-//   while (hasMore) {
-//     const result = await onlineProvider.request('mintage_getTokenInfoList', offset, count);
-//     tokenInfos = tokenInfos.concat(result.tokenInfoList);
-//     hasMore = (result.tokenInfoList.length == count);
-//     offset++;
-//   }
+//   const tokenInfos = await getOnlineAllBuiltinTokenInfo();
 //   console.log("count" ,tokenInfos.length)
+
 //   let text = "";
 //   for (let index = 0; index < tokenInfos.length; index++) {
 //     const token = tokenInfos[index];
@@ -287,15 +293,77 @@ let accountIndex = 0;
 //   console.log(`tokenInfo\n${text}`);
 // }, 50000000);
 
-test("vite.getTestAmountText", async () => {
-  const result = await vite.getTestAmountText("1", "tti_7d37e43b93438b2d6431f5b6");
-  console.log(result);
-}, 50000000);
+// test("vite.getTestAmountText", async () => {
 
-// test("vite.getAddress", async () => {
-//   await getAddress(accountIndex, false);
-//   await getAddress(accountIndex, true);
+//   function getAmount(count) {
+//     if (count == 0) {
+//       return '0';
+//     }
+
+//     const text = '1234567890';
+//     let amount = '';
+//     for (let index = 0; index < count; index++) {
+//       amount += text[index%10];
+//     }
+
+//     return amount;
+//   }
+
+//   function amountToBaseString(amount, decimals) {
+//     const min = new BigNumber(10).exponentiatedBy(decimals);
+//     amount = new BigNumber(amount);
+//     if (amount.c === null) {
+//         return '';
+//     }
+//     try {
+//         return amount.dividedBy(min).toFormat();
+//     } catch (err) {
+//         return '';
+//     }
+//   }
+
+//   function uniqueSymbol(token) {
+//     if (token.tokenSymbol == 'VITE' || token.tokenSymbol == 'VCP' || token.tokenSymbol == 'VX') {
+//       return token.tokenSymbol;
+//     } else {
+//       return `${token.tokenSymbol}-`+`${token.index}`.padStart(3, '0');
+//     }
+//   }
+
+//   const tokenInfos = await getOnlineAllBuiltinTokenInfo();
+  
+//   let maxDecimals = 0;
+//   for (let index = 0; index < tokenInfos.length; index++) {
+//     const tokenInfo = tokenInfos[index];
+//     if (tokenInfo.decimals > maxDecimals) {
+//       maxDecimals = tokenInfo.decimals;
+//     }
+//   }
+
+//   BigNumber.config({ DECIMAL_PLACES: maxDecimals, FORMAT: {groupSeparator: '', decimalSeparator: '.'} })
+
+//   console.log("maxDecimals" , maxDecimals);
+
+//   for (let index = 0; index < tokenInfos.length; index++) {
+//     const tokenInfo = tokenInfos[index];
+//     console.log(`test ${uniqueSymbol(tokenInfo)} ${tokenInfo.decimals}`);
+//     for (let index = 0; index < maxDecimals * 2; index++) {
+//       const amount = getAmount(index);
+
+//       const result = uniqueSymbol(tokenInfo) + ' ' + amountToBaseString(amount, tokenInfo.decimals)
+//       const test = await vite.getTestAmountText(amount, tokenInfo.tokenId);
+//       // console.log('amount', amount, 'result', result, 'test', test);
+//       expect(result).toEqual(test);
+//     }
+//   }
 // }, 50000000);
+
+let accountIndex = 0;
+
+test("vite.getAddress", async () => {
+  await getAddress(accountIndex, false);
+  await getAddress(accountIndex, true);
+}, 50000000);
 
 // test("vite.signReceiveAccountBlock", async () => {
 //   const accountResult = await vite.getAddress(accountIndex, false);
@@ -308,50 +376,50 @@ test("vite.getTestAmountText", async () => {
 
 // }, 50000000);
 
-// test("vite.signSendAccountBlock", async () => {
-//   try {
-//     const _accountResult = await getAddress(accountIndex, false);
-//     let publicKey = _accountResult.publicKey;
-//     let accountAddress = _accountResult.address;
+test("vite.signSendAccountBlock", async () => {
+  try {
+    const _accountResult = await getAddress(accountIndex, false);
+    let publicKey = _accountResult.publicKey;
+    let accountAddress = _accountResult.address;
 
-//     const toAddress = "vite_847e1672c9a775ca0f3c3a2d3bf389ca466e5501cbecdb7107";
-//     const tokenId = "tti_5649544520544f4b454e6e40";
-//     const fee = "0";
+    const toAddress = "vite_847e1672c9a775ca0f3c3a2d3bf389ca466e5501cbecdb7107";
+    const tokenId = "tti_5649544520544f4b454e6e40";
+    const fee = "0";
 
-//     const notes = [
-//       // null,
-//       // "",
-//       // "abcdefghijklmnopqrstuvwxyz",
-//       // "abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789",
-//       // "abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789-haha",
-//       // "交易所ViteX在4月16日正式上线公测版本。ViteX作为完全去中心化交易所具有链上撮合交易;、链上分红、交易信息链上完全透明、 私钥资产由用户自己保管、交易即挖矿、任何人都可以在ViteX交易所自主上币等特点。ViteX交易所公测地址： https://x-test.vite.net/为了方便您数字资产的保管，在体验交易所公测版本时，需要您重新注册账号，领取测试代币后即可体验交易（钱包的测试代币需要在交易所“资产管理”内充币至交易所）。在公测版本中我们将会开启以下14个交易对：GRIN.T/BTC、ETH/BTC、VITE/BTC、VTT.T/BTC、VTT.T/ETH、VITE/ETH、GRIN.T/ETH、GRIN.T/VITE、VTT.T/VITE、BTC/USDT、ETH/USDT、VITE/USDT、GRIN.T/USDT、VTT.T/USDT。最小交易额分别为：100VITE、0.01ETH，0.0005BTC，1USDT。公测版ViteX交易所仅有Web版本，下面为公测版本截图。",
-//       "全球第一个基于DAG的去中心化交易所ViteX在4月16日正式上线公测版本。ViteX作为完全去中心化交易所具有链上撮合交易;、链上分红、交易信息链上完全透明、 私钥资产由用户自己保管、交易即挖矿、任何人都可以在ViteX交易所自主上币等特点。ViteX交易所公测地址： https://x-test.vite.net/为了方便您数字资产的保管，在体验交易所公测版本时，需要您重新注册账号，领取测试代币后即可体验交易（钱包的测试代币需要在交易所“资产管理”内充币至交易所）。在公测版本中我们将会开启以下14个交易对：GRIN.T/BTC、ETH/BTC、VITE/BTC、VTT.T/BTC、VTT.T/ETH、VITE/ETH、GRIN.T/ETH、GRIN.T/VITE、VTT.T/VITE、BTC/USDT、ETH/USDT、VITE/USDT、GRIN.T/USDT、VTT.T/USDT。最小交易额分别为：100VITE、0.01ETH，0.0005BTC，1USDT。公测版ViteX交易所仅有Web版本，下面为公测版本截图。"
-//     ];
+    const notes = [
+      // null,
+      // "",
+      // "abcdefghijklmnopqrstuvwxyz",
+      // "abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789",
+      // "abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789-haha",
+      // "交易所ViteX在4月16日正式上线公测版本。ViteX作为完全去中心化交易所具有链上撮合交易;、链上分红、交易信息链上完全透明、 私钥资产由用户自己保管、交易即挖矿、任何人都可以在ViteX交易所自主上币等特点。ViteX交易所公测地址： https://x-test.vite.net/为了方便您数字资产的保管，在体验交易所公测版本时，需要您重新注册账号，领取测试代币后即可体验交易（钱包的测试代币需要在交易所“资产管理”内充币至交易所）。在公测版本中我们将会开启以下14个交易对：GRIN.T/BTC、ETH/BTC、VITE/BTC、VTT.T/BTC、VTT.T/ETH、VITE/ETH、GRIN.T/ETH、GRIN.T/VITE、VTT.T/VITE、BTC/USDT、ETH/USDT、VITE/USDT、GRIN.T/USDT、VTT.T/USDT。最小交易额分别为：100VITE、0.01ETH，0.0005BTC，1USDT。公测版ViteX交易所仅有Web版本，下面为公测版本截图。",
+      "全球第一个基于DAG的去中心化交易所ViteX在4月16日正式上线公测版本。ViteX作为完全去中心化交易所具有链上撮合交易;、链上分红、交易信息链上完全透明、 私钥资产由用户自己保管、交易即挖矿、任何人都可以在ViteX交易所自主上币等特点。ViteX交易所公测地址： https://x-test.vite.net/为了方便您数字资产的保管，在体验交易所公测版本时，需要您重新注册账号，领取测试代币后即可体验交易（钱包的测试代币需要在交易所“资产管理”内充币至交易所）。在公测版本中我们将会开启以下14个交易对：GRIN.T/BTC、ETH/BTC、VITE/BTC、VTT.T/BTC、VTT.T/ETH、VITE/ETH、GRIN.T/ETH、GRIN.T/VITE、VTT.T/VITE、BTC/USDT、ETH/USDT、VITE/USDT、GRIN.T/USDT、VTT.T/USDT。最小交易额分别为：100VITE、0.01ETH，0.0005BTC，1USDT。公测版ViteX交易所仅有Web版本，下面为公测版本截图。"
+    ];
 
-//     for (let index = 0; index < notes.length; index++) {
-//       let amount = `${index}000000000000000000`;
-//       const note = notes[index];
+    for (let index = 0; index < notes.length; index++) {
+      let amount = `${index}000000000000000000`;
+      const note = notes[index];
 
-//       let dataLength = null;
-//       if (note) {
-//         dataLength = Buffer.from(note, 'utf8').length
-//       }
-//       console.log('amount:', index, 'dataLength:', dataLength, 'note:', note);
+      let dataLength = null;
+      if (note) {
+        dataLength = Buffer.from(note, 'utf8').length
+      }
+      console.log('amount:', index, 'dataLength:', dataLength, 'note:', note);
 
-//       await sendBlock(
-//         accountAddress, 
-//         publicKey, 
-//         toAddress,
-//         amount, 
-//         tokenId, 
-//         fee, 
-//         note);
-//     }
+      await sendBlock(
+        accountAddress, 
+        publicKey, 
+        toAddress,
+        amount, 
+        tokenId, 
+        fee, 
+        note);
+    }
 
-//   } catch(err) {
-//     console.warn(err);
-//   }
-// }, 50000000); 
+  } catch(err) {
+    console.warn(err);
+  }
+}, 50000000); 
 
 // test("vite.signLatestReceiveAccountBlock", async () => {
 
