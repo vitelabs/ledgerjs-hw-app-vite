@@ -11,7 +11,8 @@ module.exports = api => {
       }
     ]);
   }
-  presets.push("@babel/preset-flow");
+  
+  presets.push("@babel/preset-typescript");
 
   const plugins = [
     "@babel/plugin-proposal-export-default-from",

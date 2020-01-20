@@ -2,4 +2,4 @@
 
 set -e
 
-rm -rf lib/ lib-es flow-typed/
+rm -rf lib/ lib-es

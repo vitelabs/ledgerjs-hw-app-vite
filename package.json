@@ -4,7 +4,6 @@
     "version": "1.0.0",
     "description": "Ledger Hardware Wallet Vite Application API",
     "scripts": {
-        "flow": "flow",
         "clean": "bash ./script/clean.sh",
         "build": "npm run clean && BABEL_ENV=production bash ./script/build.sh",
         "watch": "bash ./script/watch.sh",
@@ -31,6 +30,7 @@
         "@babel/plugin-syntax-import-meta": "^7.2.0",
         "@babel/preset-env": "^7.7.7",
         "@babel/preset-flow": "^7.0.0",
+        "@babel/preset-typescript": "^7.8.3",
         "@ledgerhq/hw-transport-mocker": "^5.3.0",
         "@ledgerhq/hw-transport-node-hid": "^5.3.0",
         "@vite/vitejs": "^2.3.3",
@@ -42,10 +42,7 @@
         "eslint-config-prettier": "^6.9.0",
         "eslint-plugin-flowtype": "^4.5.3",
         "eslint-plugin-react": "^7.14.3",
-        "flow-bin": "^0.115.0",
-        "flow-copy-source": "^2.0.8",
-        "flow-mono-cli": "^1.5.0",
-        "flow-typed": "^2.6.1",
-        "jest": "^24.9.0"
+        "jest": "^24.9.0",
+        "typescript": "^3.7.5"
     }
 }
