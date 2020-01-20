@@ -13,6 +13,7 @@
     },
     "main": "lib/Vite.js",
     "module": "lib-es/Vite.js",
+    "types": "lib/Vite.d.ts",
     "license": "Apache-2.0",
     "dependencies": {
         "@ledgerhq/hw-transport": "^5.3.0",
@@ -29,7 +30,6 @@
         "@babel/plugin-syntax-dynamic-import": "^7.2.0",
         "@babel/plugin-syntax-import-meta": "^7.2.0",
         "@babel/preset-env": "^7.7.7",
-        "@babel/preset-flow": "^7.0.0",
         "@babel/preset-typescript": "^7.8.3",
         "@ledgerhq/hw-transport-mocker": "^5.3.0",
         "@ledgerhq/hw-transport-node-hid": "^5.3.0",
@@ -38,10 +38,6 @@
         "babel-eslint": "^10.0.3",
         "babel-jest": "^24.9.0",
         "bignumber.js": "^9.0.0",
-        "eslint": "^6.8.0",
-        "eslint-config-prettier": "^6.9.0",
-        "eslint-plugin-flowtype": "^4.5.3",
-        "eslint-plugin-react": "^7.14.3",
         "jest": "^24.9.0",
         "typescript": "^3.7.5"
     }
