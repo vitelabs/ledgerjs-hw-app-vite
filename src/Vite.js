@@ -1,18 +1,12 @@
-import { BaseAPI } from "../lib/api";
 import Transport from "@ledgerhq/hw-transport";
 import BIPPath from "bip32-path";
-import {
-    abi, error, keystore, utils, constant,
-    accountBlock, ViteAPI, wallet
-} from '@vite/vitejs';
+import { accountBlock as AccountBlock } from '@vite/vitejs';
 
-export default class Vite extends BaseAPI {
+export default class Vite {
+    transport: Transport<*>;
     constructor(transport: Transport<*>) {
-        super(transport, {
-            coinName: "Vite",
-            addressPrimaryPrefix: "vite_",
-            addressSecondaryPrefix: "vite_"
-        })
+        transport.setScrambleKey("VITE");
+        this.transport = transport;
     }
 
     async signSendAccountBlock(
@@ -88,15 +82,15 @@ export default class Vite extends BaseAPI {
                     ptr += buf.write("0000000000000000000000000000000000000000000000000000000000000000", ptr, buf.length - ptr, "hex");
                 }
 
-                ptr += buf.write(accountBlock.utils.getHeightHex(height), ptr, buf.length - ptr, "hex");
-                ptr += buf.write(accountBlock.utils.getAddressHex(toAddress), ptr, buf.length - ptr, "hex");
-                ptr += buf.write(accountBlock.utils.getAmountHex(amount), ptr, buf.length - ptr, "hex");
-                ptr += buf.write(accountBlock.utils.getTokenIdHex(tokenId), ptr, buf.length - ptr, "hex");
+                ptr += buf.write(AccountBlock.utils.getHeightHex(height), ptr, buf.length - ptr, "hex");
+                ptr += buf.write(AccountBlock.utils.getAddressHex(toAddress), ptr, buf.length - ptr, "hex");
+                ptr += buf.write(AccountBlock.utils.getAmountHex(amount), ptr, buf.length - ptr, "hex");
+                ptr += buf.write(AccountBlock.utils.getTokenIdHex(tokenId), ptr, buf.length - ptr, "hex");
 
                 if (fee) {
-                    ptr += buf.write(accountBlock.utils.getAmountHex(fee), ptr, buf.length - ptr, "hex");
+                    ptr += buf.write(AccountBlock.utils.getAmountHex(fee), ptr, buf.length - ptr, "hex");
                 } else {
-                    ptr += buf.write(accountBlock.utils.getAmountHex(BigInt(0)), ptr, buf.length - ptr, "hex");
+                    ptr += buf.write(AccountBlock.utils.getAmountHex(BigInt(0)), ptr, buf.length - ptr, "hex");
                 }
 
                 if (nonce) {
@@ -169,7 +163,7 @@ export default class Vite extends BaseAPI {
             ptr += buf.write("0000000000000000000000000000000000000000000000000000000000000000", ptr, buf.length - ptr, "hex");
         }
 
-        ptr += buf.write(accountBlock.utils.getHeightHex(height), ptr, buf.length - ptr, "hex");
+        ptr += buf.write(AccountBlock.utils.getHeightHex(height), ptr, buf.length - ptr, "hex");
         ptr += buf.write(fromHash, ptr, buf.length - ptr, "hex");
 
         if (nonce) {
@@ -289,8 +283,8 @@ export default class Vite extends BaseAPI {
         let ptr = 0;
         let buf = Buffer.alloc(size);
 
-        ptr += buf.write(accountBlock.utils.getAmountHex(amount), ptr, buf.length - ptr, "hex");
-        ptr += buf.write(accountBlock.utils.getTokenIdHex(tokenId), ptr, buf.length - ptr, "hex");
+        ptr += buf.write(AccountBlock.utils.getAmountHex(amount), ptr, buf.length - ptr, "hex");
+        ptr += buf.write(AccountBlock.utils.getTokenIdHex(tokenId), ptr, buf.length - ptr, "hex");
         buf = await this.transport.send(cla, ins, p1, p2, buf);
         const text = buf.slice(0, buf.length - 2).toString("ascii");
         return text;
