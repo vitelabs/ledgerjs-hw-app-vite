@@ -11,7 +11,7 @@ module.exports = api => {
       }
     ]);
   }
-  
+
   presets.push("@babel/preset-typescript");
 
   const plugins = [
