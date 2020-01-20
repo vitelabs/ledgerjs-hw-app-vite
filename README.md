@@ -2,21 +2,13 @@
 
 Library for interacting with the Ledger VITE app from the browser or Node.
 
-## API
-
-### VITE API
-
-#### Parameters
-
--   `transport` **Transport&lt;any>** 
--   `scrambleKey` **string**  (optional, default `"VITE"`)
-
-#### Examples
+## Module Import
 
 ```javascript
 import Vite from "ledgerjs-hw-app-vite";
-const vite = new Vite(transport)
+const vite = new Vite(transport);
 ```
+## API
 
 ### getAppConfig
 获取固件版本号以及 builtin token 数量。
