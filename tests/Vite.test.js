@@ -41,7 +41,7 @@ async function getCurrentHeightAndPreviousHash(accountAddress) {
   return result;
 }
 
-async function getPoWDifficultyForSend(accountAddress, previousHash, toAddress, data) {
+async function getPoWDifficultyForRequest(accountAddress, previousHash, toAddress, data) {
   try {
     const powDifficulty = await provider.request('ledger_getPoWDifficulty', {
       "address":accountAddress,
@@ -55,13 +55,13 @@ async function getPoWDifficultyForSend(accountAddress, previousHash, toAddress, 
     if (powDifficulty.difficulty.length > 0) {
       result = powDifficulty.difficulty;
     }
-    console.log('getPoWDifficultyForSend', result);
+    console.log('getPoWDifficultyForRequest', result);
     return result;
   } catch(err) {
     if (err.error.code == -35005) {
       console.log('need sleep');
       await new Promise(resolve => setTimeout(resolve, 2000));
-      return await getPoWDifficultyForSend(accountAddress, previousHash, toAddress, data);
+      return await getPoWDifficultyForRequest(accountAddress, previousHash, toAddress, data);
     } else {
       throw err;
     }
@@ -76,22 +76,22 @@ async function getPoWNonce(accountAddress, previousHash, difficulty) {
   return result;
 }
 
-async function signSendBlockAndSendWithAccountIndex(accountIndex, toAddress, amount, tokenId, fee, data) {
+async function signRequestBlockAndSendWithAccountIndex(accountIndex, toAddress, amount, tokenId, fee, data) {
   const _accountResult = await getAddress(accountIndex, false);
   let publicKey = _accountResult.publicKey;
   let accountAddress = _accountResult.address;
 
-  return await signSendBlockAndSend(accountAddress, publicKey, toAddress, amount, tokenId, fee, data);
+  return await signRequestBlockAndSend(accountAddress, publicKey, toAddress, amount, tokenId, fee, data);
 }
 
-async function signSendBlockAndSend(accountAddress, publicKey, toAddress, amount, tokenId, fee, data) {
+async function signRequestBlockAndSend(accountAddress, publicKey, toAddress, amount, tokenId, fee, data) {
 
   const _getCurrentHeightAndPreviousHashResult = await getCurrentHeightAndPreviousHash(accountAddress);
   let previousHash = _getCurrentHeightAndPreviousHashResult.previousHash;
   let height = _getCurrentHeightAndPreviousHashResult.height;
 
   let nonce = null;
-  let difficulty = await getPoWDifficultyForSend(accountAddress, previousHash, toAddress, data);
+  let difficulty = await getPoWDifficultyForRequest(accountAddress, previousHash, toAddress, data);
   if (difficulty) {
     console.log('need pow', difficulty);
     nonce = await getPoWNonce(accountAddress, previousHash, difficulty);
@@ -100,11 +100,11 @@ async function signSendBlockAndSend(accountAddress, publicKey, toAddress, amount
     difficulty = null;
   }
 
-  const signResult = await vite.signSendAccountBlock(accountIndex, height, toAddress, amount, tokenId, data, fee, previousHash, nonce)
+  const signResult = await vite.signRequestAccountBlock(accountIndex, height, toAddress, amount, tokenId, data, fee, previousHash, nonce)
   const blockHash = signResult.blockHash;
   const signature = signResult.signature;
 
-  let sendBlock = {
+  let requestBlock = {
     "previousHash": previousHash,
     "publicKey": publicKey,
     "address": accountAddress,
@@ -123,8 +123,8 @@ async function signSendBlockAndSend(accountAddress, publicKey, toAddress, amount
     "difficulty": difficulty
     
   };
-  console.log('sendBlock', sendBlock);
-  const result = await provider.request('ledger_sendRawTransaction', sendBlock);
+  console.log('requestBlock', requestBlock);
+  const result = await provider.request('ledger_sendRawTransaction', requestBlock);
   return result;
 }
 
@@ -137,7 +137,7 @@ async function getFirstUnreceivedBlock(accountAddress) {
   }
 }
 
-async function getPoWDifficultyForReceive(accountAddress, previousHash) {
+async function getPoWDifficultyForResponse(accountAddress, previousHash) {
   try {
     const powDifficulty = await provider.request('ledger_getPoWDifficulty', {
       "address":accountAddress,
@@ -149,26 +149,26 @@ async function getPoWDifficultyForReceive(accountAddress, previousHash) {
     if (powDifficulty.difficulty.length > 0) {
       result = powDifficulty.difficulty;
     }
-    console.log('getPoWDifficultyForReceive', result);
+    console.log('getPoWDifficultyForResponse', result);
     return result;
   } catch(err) {
     if (err.error.code == -35005) {
       console.log('need sleep');
       await new Promise(resolve => setTimeout(resolve, 2000));
-      return await getPoWDifficultyForReceive(accountAddress, previousHash);
+      return await getPoWDifficultyForResponse(accountAddress, previousHash);
     } else {
       throw err;
     }
   }
 }
 
-async function signReceiveBlockAndSend(accountAddress, publicKey, sendBlockHash) {
+async function signResponseBlockAndSend(accountAddress, publicKey, sendBlockHash) {
   const _getCurrentHeightAndPreviousHashResult = await getCurrentHeightAndPreviousHash(accountAddress);
     let previousHash = _getCurrentHeightAndPreviousHashResult.previousHash;
     let height = _getCurrentHeightAndPreviousHashResult.height;
 
     let nonce = null;
-    let difficulty = await getPoWDifficultyForReceive(accountAddress, previousHash);
+    let difficulty = await getPoWDifficultyForResponse(accountAddress, previousHash);
     if (difficulty) {
       console.log('need pow', difficulty);
       nonce = await getPoWNonce(accountAddress, previousHash, difficulty);
@@ -177,11 +177,11 @@ async function signReceiveBlockAndSend(accountAddress, publicKey, sendBlockHash)
       difficulty = null;
     }
 
-    const signResult = await vite.signReceiveAccountBlock(accountIndex, height, sendBlockHash, previousHash, nonce);
+    const signResult = await vite.signResponseAccountBlock(accountIndex, height, sendBlockHash, previousHash, nonce);
     const blockHash = signResult.blockHash;
     const signature = signResult.signature;
 
-    let receiveBlock = {
+    let responseBlock = {
       "previousHash": previousHash,
       "publicKey": publicKey,
       "address": accountAddress,
@@ -194,16 +194,16 @@ async function signReceiveBlockAndSend(accountAddress, publicKey, sendBlockHash)
       "difficulty": difficulty
       
     };
-    console.log(receiveBlock);
-    const ret = await provider.request('ledger_sendRawTransaction', receiveBlock)
+    console.log(responseBlock);
+    const ret = await provider.request('ledger_sendRawTransaction', responseBlock)
 }
 
-async function sendBlock(accountAddress, publicKey, toAddress, amount, tokenId, fee, note) {
+async function requestBlock(accountAddress, publicKey, toAddress, amount, tokenId, fee, note) {
   let data = null;
   if (note && note.length > 0) {
     data = Buffer.from(note, 'utf8').toString("base64");
   }
-  return await signSendBlockAndSend(accountAddress, publicKey, toAddress, amount, tokenId, fee, data);
+  return await signRequestBlockAndSend(accountAddress, publicKey, toAddress, amount, tokenId, fee, data);
 }
 
 async function getOnlineAllBuiltinTokenInfo() {
@@ -354,18 +354,18 @@ test("vite.getAddress", async () => {
   await getAddress(accountIndex, true);
 }, 50000000);
 
-test("vite.signReceiveAccountBlock", async () => {
+test("vite.signResponseAccountBlock", async () => {
   const accountResult = await vite.getAddress(accountIndex, false);
   console.log(accountResult.publicKey);
   console.log(accountResult.address);
 
-  const signResult = await vite.signReceiveAccountBlock(0, 1, "1e3004d74382a8635b836eb8a3e34ede7c00a7a1bff0c150974c1235287ad07a", null, "4KVvCafscbA=");
+  const signResult = await vite.signResponseAccountBlock(0, 1, "1e3004d74382a8635b836eb8a3e34ede7c00a7a1bff0c150974c1235287ad07a", null, "4KVvCafscbA=");
   console.log(signResult.blockHash);
   console.log(signResult.signature);
 
 }, 50000000);
 
-test("vite.signSendAccountBlock", async () => {
+test("vite.signRequestAccountBlock", async () => {
   try {
     const _accountResult = await getAddress(accountIndex, false);
     let publicKey = _accountResult.publicKey;
@@ -395,7 +395,7 @@ test("vite.signSendAccountBlock", async () => {
       }
       console.log('amount:', index, 'dataLength:', dataLength, 'note:', note);
 
-      await sendBlock(
+      await requestBlock(
         accountAddress, 
         publicKey, 
         toAddress,
@@ -417,7 +417,7 @@ test("vite.signLatestReceiveAccountBlock", async () => {
     let publicKey = _accountResult.publicKey;
     let accountAddress = _accountResult.address;
 
-    await signSendBlockAndSend(accountAddress, publicKey, accountAddress, "1000000000000000000", "tti_5649544520544f4b454e6e40", "0", null);
+    await signRequestBlockAndSend(accountAddress, publicKey, accountAddress, "1000000000000000000", "tti_5649544520544f4b454e6e40", "0", null);
 
     while (true) {
       const unreceivedBlock = await getFirstUnreceivedBlock(accountAddress);
@@ -427,7 +427,7 @@ test("vite.signLatestReceiveAccountBlock", async () => {
       }
 
       const sendBlockHash = unreceivedBlock.hash;
-      await signReceiveBlockAndSend(accountAddress, publicKey, sendBlockHash);
+      await signResponseBlockAndSend(accountAddress, publicKey, sendBlockHash);
     }
 
   } catch(err) {

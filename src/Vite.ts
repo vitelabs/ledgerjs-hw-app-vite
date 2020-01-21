@@ -127,11 +127,11 @@ export default class Vite {
         };
     }
 
-    async signReceiveAccountBlock(
+    async signResponseAccountBlock(
         accountIndex: number,
         height: Uint64,
-        fromHash: Hex,
-        prevHash?: Hex,
+        sendBlockHash: Hex,
+        previousHash?: Hex,
         nonce?: Base64
     ): Promise<{
         blockHash: Hex,
@@ -146,9 +146,9 @@ export default class Vite {
         const p2 = 0x00;
 
         let size = 1 + 4 * bipPath.length; // bipPath
-        size += 32; // prevHash
+        size += 32; // previousHash
         size += 8; // height
-        size += 32; // fromHash
+        size += 32; // sendBlockHash
         size += 8; // nonce
 
         let ptr = 0;
@@ -161,14 +161,14 @@ export default class Vite {
             ptr += 4;
         });
 
-        if (prevHash) {
-            ptr += buf.write(prevHash, ptr, buf.length - ptr, "hex");
+        if (previousHash) {
+            ptr += buf.write(previousHash, ptr, buf.length - ptr, "hex");
         } else {
             ptr += buf.write("0000000000000000000000000000000000000000000000000000000000000000", ptr, buf.length - ptr, "hex");
         }
 
         ptr += buf.write(AccountBlock.utils.getHeightHex(height), ptr, buf.length - ptr, "hex");
-        ptr += buf.write(fromHash, ptr, buf.length - ptr, "hex");
+        ptr += buf.write(sendBlockHash, ptr, buf.length - ptr, "hex");
 
         if (nonce) {
             ptr += buf.write(nonce, ptr, buf.length - ptr, "base64");
@@ -191,7 +191,7 @@ export default class Vite {
         };
     }
 
-    async signSendAccountBlock(
+    async signRequestAccountBlock(
         accountIndex: number,
         height: Uint64,
         toAddress: Address,
@@ -199,7 +199,7 @@ export default class Vite {
         tokenId: TokenId,
         data?: Base64,
         fee?: BigInt,
-        prevHash?: Hex,
+        previousHash?: Hex,
         nonce?: Base64,
     ): Promise<{
         blockHash: Hex,
@@ -213,18 +213,18 @@ export default class Vite {
             blockHash: Hex,
             signature: Base64
         }> {
-            const maxDataSizeInCacheSendBlockDataAPDU = 224;
-            const maxDataSizeInSignSendBlock = 64;
+            const maxDataSizeInCacheRequestBlockDataAPDU = 224;
+            const maxDataSizeInSignRequestBlock = 64;
             let remain = dataBuffer.length - dataBufferPtr;
 
-            if (remain > maxDataSizeInSignSendBlock) {
+            if (remain > maxDataSizeInSignRequestBlock) {
 
                 const cla = 0xa1;
                 const ins = 0x04;
                 const p1 = (dataBufferPtr == 0) ? 0x01 : 0x02;
                 const p2 = 0x00;
 
-                let length = Math.min(remain, maxDataSizeInCacheSendBlockDataAPDU);
+                let length = Math.min(remain, maxDataSizeInCacheRequestBlockDataAPDU);
                 let buf = dataBuffer.slice(dataBufferPtr, dataBufferPtr + length);
                 dataBufferPtr += length;
                 console.log(length, buf.length);
@@ -242,7 +242,7 @@ export default class Vite {
                 const p2 = 0x00;
 
                 let size = 1 + 4 * bipPath.length; // bipPath
-                size += 32; // prevHash
+                size += 32; // previousHash
                 size += 8; // height
                 size += 21; // toAddress
                 size += 32; // amount
@@ -261,8 +261,8 @@ export default class Vite {
                     ptr += 4;
                 });
 
-                if (prevHash) {
-                    ptr += buf.write(prevHash, ptr, buf.length - ptr, "hex");
+                if (previousHash) {
+                    ptr += buf.write(previousHash, ptr, buf.length - ptr, "hex");
                 } else {
                     ptr += buf.write("0000000000000000000000000000000000000000000000000000000000000000", ptr, buf.length - ptr, "hex");
                 }

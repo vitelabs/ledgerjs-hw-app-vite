@@ -68,26 +68,26 @@ const result = await getAddress(accountIndex, true);
 ```
 Returns Promise<{publicKey: Base64, address: Address}>
 
-### signReceiveAccountBlock
-sign receive account block
+### signResponseAccountBlock
+sign response account block
 
 #### Parameters
 
 -   `accountIndex` **number** 账户序号，从0开始
 -   `height` **Uint64** account block height
--   `fromHash` **Hex** send block hash
--   `prevHash？` **Hex** previous account block hash
+-   `sendBlockHash` **Hex** send block hash
+-   `previousHash？` **Hex** previous account block hash
 -   `nonce？` **Base64** nonce
 
 #### Examples
 
 ```javascript
-const signResult = await vite.signReceiveAccountBlock(0, 1, "1e3004d74382a8635b836eb8a3e34ede7c00a7a1bff0c150974c1235287ad07a", null, "4KVvCafscbA=");
+const signResult = await vite.signResponseAccountBlock(0, 1, "1e3004d74382a8635b836eb8a3e34ede7c00a7a1bff0c150974c1235287ad07a", null, "4KVvCafscbA=");
 ```
 Returns Promise<{blockHash: Hex, signature: Base64}>
 
-### signSendAccountBlock
-sign send account block
+### signRequestAccountBlock
+sign request account block
 
 #### Parameters
 
@@ -98,12 +98,12 @@ sign send account block
 -   `tokenId` **TokenId** token ID
 -   `data?` **Base64?** data
 -   `fee?` **BigInt** fee
--   `prevHash？` **Hex** previous account block hash
+-   `previousHash？` **Hex** previous account block hash
 -   `nonce？` **Base64** nonce
 
 #### Examples
 
 ```javascript
-const signResult = await vite.signSendAccountBlock(0, 4, 'vite_847e1672c9a775ca0f3c3a2d3bf389ca466e5501cbecdb7107', '1000000000000000000', 'tti_5649544520544f4b454e6e40', null, null, '1e3004d74382a8635b836eb8a3e34ede7c00a7a1bff0c150974c1235287ad07a', null);
+const signResult = await vite.signRequestAccountBlock(0, 4, 'vite_847e1672c9a775ca0f3c3a2d3bf389ca466e5501cbecdb7107', '1000000000000000000', 'tti_5649544520544f4b454e6e40', null, null, '1e3004d74382a8635b836eb8a3e34ede7c00a7a1bff0c150974c1235287ad07a', null);
 ```
 Returns Promise<{blockHash: Hex, signature: Base64}>
