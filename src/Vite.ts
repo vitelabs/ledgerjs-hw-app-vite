@@ -116,10 +116,8 @@ export default class Vite {
 
         ptr += 32;
         const publicKey = buf.slice(ptr - 32, ptr).toString("base64");
-
-        const addressLength = buf.readUInt8(ptr);
-        ptr += 1 + addressLength;
-        const address = buf.slice(ptr - addressLength, ptr).toString("ascii");
+        ptr += 55;
+        const address = buf.slice(ptr - 55, ptr).toString("ascii");
 
         return {
             publicKey,
