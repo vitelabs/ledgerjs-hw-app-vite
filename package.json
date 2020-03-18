@@ -1,6 +1,5 @@
 {
-    "private": true,
-    "name": "ledgerjs-hw-app-vite",
+    "name": "@vite/ledgerjs-hw-app-vite",
     "version": "1.0.0",
     "description": "Ledger Hardware Wallet Vite Application API",
     "scripts": {
